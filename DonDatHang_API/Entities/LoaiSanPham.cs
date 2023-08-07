@@ -1,6 +1,6 @@
 ﻿namespace DonDatHang_API.Entities
 {
-    public class LoaiSanPham
+    public class LoaiSanPham: BaseEntity
     {
         public string TenLoaiSanPham { get; set; }
 
