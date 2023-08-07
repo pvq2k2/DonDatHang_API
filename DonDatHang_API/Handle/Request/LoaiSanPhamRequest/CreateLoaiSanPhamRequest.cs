@@ -2,5 +2,6 @@
 {
     public class CreateLoaiSanPhamRequest
     {
+        public string TenLoaiSanPham { get; set; }
     }
 }
