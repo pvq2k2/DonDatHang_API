@@ -5,7 +5,7 @@ using DonDatHang_API.Handle.Response;
 
 namespace DonDatHang_API.Service.Interface
 {
-    public interface IHoaDon
+    public interface IHoaDonService
     {
         public ResponseData<HoaDonDTO> GetAllHoaDon();
         public ResponseData<HoaDonDTO> GetHoaDonByID(int hoaDonID);
