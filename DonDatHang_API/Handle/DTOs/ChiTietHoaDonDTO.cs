@@ -4,6 +4,6 @@
     {
         public int SoLuong { get; set; }
         public string DVT { get; set; }
-        public double ThanhTien { get; set; }
+        public double? ThanhTien { get; set; }
     }
 }
