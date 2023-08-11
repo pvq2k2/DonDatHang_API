@@ -10,7 +10,7 @@ namespace DonDatHang_API.Service.Interface
         public ResponseData<HoaDonDTO> GetAllHoaDon();
         public ResponseData<HoaDonDTO> GetHoaDonByID(int hoaDonID);
         public ResponseData<HoaDonDTO> CreateHoaDon(CreateHoaDonRequest request);
-        public ResponseData<HoaDonDTO> UpadateHoaDon(int hoaDonID, UpdateHoaDonRequest request);
+        public ResponseData<HoaDonDTO> UpadateHoaDon(UpdateHoaDonRequest request);
         public ResponseData<ActionStatus> RemoveHoaDon(int hoaDonID);
     }
 }

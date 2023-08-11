@@ -10,7 +10,7 @@ namespace DonDatHang_API.Service.Interface
         public ResponseData<SanPhamDTO> GetAllSanPham();
         public ResponseData<SanPhamDTO> GetSanPhamByID(int sanPhamID);
         public ResponseData<SanPhamDTO> CreateSanPham(CreateSanPhamRequest request);
-        public ResponseData<SanPhamDTO> UpdateSanPham(int sanPhamID, UpdateSanPhamRequest request);
+        public ResponseData<SanPhamDTO> UpdateSanPham(UpdateSanPhamRequest request);
         public ResponseData<ActionStatus> RemoveSanPham(int sanPhamID);
     }
 }

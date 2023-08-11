@@ -10,7 +10,7 @@ namespace DonDatHang_API.Service.Interface
         public ResponseData<ChiTietHoaDonDTO> GetAllChiTietHoaDon();
         public ResponseData<ChiTietHoaDonDTO> GetChiTietHoaDonByID(int chiTietHoaDonID);
         public ResponseData<ChiTietHoaDonDTO> CreateChiTietHoaDon(CreateChiTietHoaDonRequest request);
-        public ResponseData<ChiTietHoaDonDTO> UpdateChiTietHoaDon(int chiTietHoaDonID, UpdateChiTietHoaDonRequest request);
+        public ResponseData<ChiTietHoaDonDTO> UpdateChiTietHoaDon(UpdateChiTietHoaDonRequest request);
         public ResponseData<ActionStatus> RemoveChiTietHoaDon(int chiTietHoaDonID);
     }
 }

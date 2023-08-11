@@ -10,7 +10,7 @@ namespace DonDatHang_API.Service.Interface
         public ResponseData<KhachHangDTO> GetAllKhachHang();
         public ResponseData<KhachHangDTO> GetKhachHangByID(int khachHangID);
         public ResponseData<KhachHangDTO> CreateKhachHang(CreateKhachHangRequest request);
-        public ResponseData<KhachHangDTO> UpdateKhachHang(int khachHangID, UpdateKhachHangRequest request);
+        public ResponseData<KhachHangDTO> UpdateKhachHang(UpdateKhachHangRequest request);
         public ResponseData<ActionStatus> RemoveKhachHang(int khachHangID);
     }
 }

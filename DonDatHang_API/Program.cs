@@ -9,6 +9,11 @@ builder.Services.AddSwaggerGen();
 // Add services auto mapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+builder.Services.AddControllers().AddJsonOptions(x =>
+{
+    x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

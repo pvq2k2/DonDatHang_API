@@ -16,8 +16,18 @@ namespace DonDatHang_API.Handle.Converter
                 ThoiGianCapNhat = hoaDon.ThoiGianCapNhat,
                 GhiChu = hoaDon.GhiChu,
                 TongTien = hoaDon.TongTien,
-                ListChiTietHoaDon = hoaDon.ListChiTietHoaDon,
             };
+        }
+
+        public List<HoaDonDTO> ListEntityHoaDonToDTO(List<HoaDon> listHoaDon)
+        {
+            var listHoaDonDTO = new List<HoaDonDTO>();
+            foreach (var hoaDon in listHoaDon)
+            {
+                listHoaDonDTO.Add(EntityHoaDonToDTO(hoaDon));
+            }
+            
+            return listHoaDonDTO;
         }
 
         public HoaDon CreateHoaDon(CreateHoaDonRequest request)
@@ -26,19 +36,13 @@ namespace DonDatHang_API.Handle.Converter
             {
                 KhachHangID = request.KhachHangID,
                 TenHoaDon = request.TenHoaDon,
-                MaGiaoDich = request.MaGiaoDich,
-                ThoiGianTao = request.ThoiGianTao,
-                ThoiGianCapNhat = request.ThoiGianCapNhat,
                 GhiChu = request.GhiChu,
-                ListChiTietHoaDon = request.ListChiTietHoaDon,
             };
         }
 
         public HoaDon UpdateHoaDon(HoaDon hoaDon, UpdateHoaDonRequest request)
         {
             hoaDon.TenHoaDon = request.TenHoaDon;
-            hoaDon.MaGiaoDich = request.MaGiaoDich;
-            hoaDon.ThoiGianCapNhat = request.ThoiGianCapNhat;
             hoaDon.GhiChu = request.GhiChu;
 
             return hoaDon;
