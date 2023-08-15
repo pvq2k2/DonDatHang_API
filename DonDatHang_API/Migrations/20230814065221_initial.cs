@@ -47,7 +47,7 @@ namespace DonDatHang_API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     KhachHangID = table.Column<int>(type: "int", nullable: false),
                     TenHoaDon = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MaGiaoDich = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaGiaoDich = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ThoiGianTao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ThoiGianCapNhat = table.Column<DateTime>(type: "datetime2", nullable: true),
                     GhiChu = table.Column<string>(type: "nvarchar(max)", nullable: false),

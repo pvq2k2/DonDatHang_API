@@ -8,7 +8,7 @@
         public string DVT { get; set; }
         public double? ThanhTien { get; set; }
 
-        public HoaDon HoaDon { get; set; }
-        public SanPham SanPham { get; set; }
+        public HoaDon? HoaDon { get; set; }
+        public SanPham? SanPham { get; set; }
     }
 }

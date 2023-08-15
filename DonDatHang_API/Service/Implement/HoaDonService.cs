@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
+using Azure.Core;
+using Azure;
 using DonDatHang_API.Entities;
 using DonDatHang_API.Enums;
 using DonDatHang_API.Handle.DTOs;
 using DonDatHang_API.Handle.Request.HoaDonRequest;
 using DonDatHang_API.Handle.Response;
 using DonDatHang_API.Service.Interface;
+using System.Diagnostics;
+using DonDatHang_API.Handle.Request.ChiTietHoaDonRequest;
 
 namespace DonDatHang_API.Service.Implement
 {
@@ -12,7 +16,7 @@ namespace DonDatHang_API.Service.Implement
     {
         private string GetMaGiaoDich()
         {
-            var maGiaoDich = DateTime.Now.ToString("YYYYMMDD") + "_";
+            var maGiaoDich = DateTime.Now.ToString("yyyMMdd") + "_";
             int countSoGiaoDichHomNay = dbContext.HoaDon.Count(hoaDon => hoaDon.ThoiGianTao.Date == DateTime.Now.Date);
             if (countSoGiaoDichHomNay > 0)
             {
@@ -23,64 +27,72 @@ namespace DonDatHang_API.Service.Implement
             }
             else return maGiaoDich + "001";
         }
-        public ResponseData<HoaDonDTO> CreateHoaDon(CreateHoaDonRequest request)
+
+        private List<ChiTietHoaDon> CreateListChiTietHoaDon(int hoaDonID, List<ChiTietHoaDon> listCT)
         {
-            var response = new ResponseData<HoaDonDTO>();
-            using (var trans = dbContext.Database.BeginTransaction())
+            var checkHoaDon = dbContext.HoaDon.FirstOrDefault(x => x.ID == hoaDonID);
+            List<ChiTietHoaDon> list = new List<ChiTietHoaDon>();
+            if (checkHoaDon == null)
             {
-                if (!dbContext.KhachHang.Any(khachHang => khachHang.ID == request.KhachHangID))
+                return null;
+            }
+            else
+            {
+
+                for (int i = 0; i < listCT.Count(); i++)
                 {
-                    response.Status = ActionStatus.NotFound;
-                    response.Message = $"Khách hàng có ID '{request.KhachHangID}' không tồn tại !";
-                    return response;
-                }
-                HoaDon hoaDon = hoaDonConverter.CreateHoaDon(request);
-                hoaDon.ThoiGianTao = DateTime.Now;
-                hoaDon.MaGiaoDich = GetMaGiaoDich();
-                hoaDon.ListChiTietHoaDon = null;
-                dbContext.HoaDon.Add(hoaDon);
-                dbContext.SaveChanges();
-                var lsCTHoaDon = new List<ChiTietHoaDon>();
-                foreach (var chiTietHoaDon in request.ListChiTietHoaDon)
-                {
-                    if (dbContext.SanPham.Any(sanPham => sanPham.ID == chiTietHoaDon.SanPhamID))
+                    if (dbContext.SanPham.Any(x => x.ID == listCT[i].SanPhamID))
                     {
-                        chiTietHoaDon.HoaDonID = hoaDon.ID;
-                        var sanPham = dbContext.SanPham.FirstOrDefault(sanPham => sanPham.ID == chiTietHoaDon.SanPhamID);
-                        chiTietHoaDon.ThanhTien = chiTietHoaDon.SoLuong * sanPham.GiaThanh;
-                        lsCTHoaDon.Add(chiTietHoaDon);
+                        ChiTietHoaDon chiTiet = new ChiTietHoaDon();
+                        chiTiet.HoaDonID = hoaDonID;
+                        chiTiet.SanPhamID = listCT[i].SanPhamID;
+                        chiTiet.SoLuong = listCT[i].SoLuong;
+                        chiTiet.DVT = listCT[i].DVT;
+
+                        var sanPham = dbContext.SanPham.FirstOrDefault(x => x.ID == chiTiet.SanPhamID);
+                        chiTiet.ThanhTien = chiTiet.SoLuong * sanPham.GiaThanh;
+                        list.Add(chiTiet);
+                        dbContext.ChiTietHoaDon.Add(chiTiet);
+                        dbContext.SaveChanges();
                     }
                     else
                     {
-                        if (lsCTHoaDon.Count > 0)
-                        {
-                            dbContext.ChiTietHoaDon.AddRange(lsCTHoaDon);
-                            dbContext.SaveChanges();
-                            hoaDon.TongTien = lsCTHoaDon.Sum(x => x.ThanhTien);
-                            dbContext.SaveChanges();
-                            trans.Commit();
-                        } else
-                        {
-                            hoaDon.TongTien = 0;
-                            dbContext.SaveChanges();
-                            trans.Commit();
-                        }
-                        response.Status = ActionStatus.NotFound;
-                        response.Message = $"Sản phẩm có ID '{chiTietHoaDon.SanPhamID}' không tồn tại !";
-                        return response;
+                        return list;
                     }
                 }
-                dbContext.ChiTietHoaDon.AddRange(lsCTHoaDon);
-                dbContext.SaveChanges();
-                hoaDon.TongTien = lsCTHoaDon.Sum(x => x.ThanhTien);
-                dbContext.SaveChanges();
-                trans.Commit();
+               
+                return list;
+            }
 
-                response.Status = ActionStatus.Success;
-                response.Message = "Thêm hóa đơn thành công !";
-                response.Data = hoaDonConverter.EntityHoaDonToDTO(hoaDon);
+        }
+        public ResponseData<HoaDonDTO> CreateHoaDon(CreateHoaDonRequest request)
+        {
+            var response = new ResponseData<HoaDonDTO>();
+            if (!dbContext.KhachHang.Any(khachHang => khachHang.ID == request.KhachHangID))
+            {
+                response.Status = ActionStatus.NotFound;
+                response.Message = $"Khách hàng có ID '{request.KhachHangID}' không tồn tại !";
                 return response;
             }
+            HoaDon hoaDon = hoaDonConverter.CreateHoaDon(request);
+            hoaDon.ThoiGianTao = DateTime.Now;
+            hoaDon.MaGiaoDich = GetMaGiaoDich();
+            dbContext.HoaDon.Add(hoaDon);
+            dbContext.SaveChanges();
+
+            hoaDon.ListChiTietHoaDon = CreateListChiTietHoaDon(hoaDon.ID, request.ListChiTietHoaDon);
+            var lsCTHD = dbContext.ChiTietHoaDon.Where(x => x.HoaDonID == hoaDon.ID).ToList();
+
+            if (lsCTHD.Count > 0) hoaDon.TongTien = lsCTHD.Sum(x => x.ThanhTien);
+            else hoaDon.TongTien = 0;
+
+            dbContext.HoaDon.Update(hoaDon);
+            dbContext.SaveChanges();
+
+            response.Status = ActionStatus.Success;
+            response.Message = "Thêm hóa đơn thành công !";
+            response.Data = hoaDonConverter.EntityHoaDonToDTO(hoaDon);
+            return response;
         }
 
 
@@ -150,31 +162,17 @@ namespace DonDatHang_API.Service.Implement
                 return response;
             }
             var lsCTHDHienTai = dbContext.ChiTietHoaDon.Where(cthd => cthd.HoaDonID == request.ID).ToList();
-            if (lsCTHDHienTai != null && lsCTHDHienTai.Count() > 0)
-            {
-                hoaDon.TongTien = lsCTHDHienTai.Sum(x => x.ThanhTien);
-                hoaDon.ThoiGianCapNhat = DateTime.Now;
-                hoaDon = hoaDonConverter.UpdateHoaDon(hoaDon, request);
-                dbContext.HoaDon.Update(hoaDon);
-                dbContext.SaveChanges();
-                response.Status = ActionStatus.Success;
-                response.Message = "Cập nhật hóa đơn thành công !";
-                response.Data = hoaDonConverter.EntityHoaDonToDTO(hoaDon);
-                return response;
-            }
-            else
-            {
-                hoaDon.TongTien = 0;
-                hoaDon.ThoiGianCapNhat = DateTime.Now;
-                hoaDon = hoaDonConverter.UpdateHoaDon(hoaDon, request);
-                dbContext.HoaDon.Update(hoaDon);
-                dbContext.SaveChanges();
-                response.Status = ActionStatus.Success;
-                response.Message = "Cập nhật hóa đơn thành công !";
-                response.Data = hoaDonConverter.EntityHoaDonToDTO(hoaDon);
-                return response;
-            }
+            if (lsCTHDHienTai != null && lsCTHDHienTai.Count() > 0) hoaDon.TongTien = lsCTHDHienTai.Sum(x => x.ThanhTien);
+            else hoaDon.TongTien = 0;
 
+            hoaDon.ThoiGianCapNhat = DateTime.Now;
+            hoaDon = hoaDonConverter.UpdateHoaDon(hoaDon, request);
+            dbContext.HoaDon.Update(hoaDon);
+            dbContext.SaveChanges();
+            response.Status = ActionStatus.Success;
+            response.Message = "Cập nhật hóa đơn thành công !";
+            response.Data = hoaDonConverter.EntityHoaDonToDTO(hoaDon);
+            return response;
         }
     }
 }

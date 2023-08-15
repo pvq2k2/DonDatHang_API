@@ -33,6 +33,7 @@ namespace DonDatHang_API.Handle.Converter
         {
             return new SanPham
             {
+                LoaiSanPhamID = request.LoaiSanPhamID,
                 TenSanPham = request.TenSanPham,
                 GiaThanh = request.GiaThanh,
                 MoTa = request.MoTa,
@@ -43,6 +44,7 @@ namespace DonDatHang_API.Handle.Converter
 
         public SanPham UpdateSanPham(SanPham sanPham, UpdateSanPhamRequest request)
         {
+            sanPham.LoaiSanPhamID = request.LoaiSanPhamID;
             sanPham.TenSanPham = request.TenSanPham;
             sanPham.GiaThanh = request.GiaThanh;
             sanPham.MoTa = request.MoTa;
