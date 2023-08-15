@@ -10,6 +10,7 @@ namespace DonDatHang_API.Handle.Converter
         {
             return new ChiTietHoaDonDTO
             {
+                SanPhamID = chiTietHoaDon.SanPhamID,
                 DVT = chiTietHoaDon.DVT,
                 SoLuong = chiTietHoaDon.SoLuong,
                 ThanhTien = chiTietHoaDon.ThanhTien

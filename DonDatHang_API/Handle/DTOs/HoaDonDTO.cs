@@ -10,5 +10,6 @@ namespace DonDatHang_API.Handle.DTOs
         public DateTime? ThoiGianCapNhat { get; set; }
         public string GhiChu { get; set; }
         public double? TongTien { get; set; }
+        public List<ChiTietHoaDonDTO> ListChiTietHoaDon { get; set; }
     }
 }

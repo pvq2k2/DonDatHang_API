@@ -18,8 +18,14 @@ namespace DonDatHang_API.Controllers
         }
 
         [HttpGet("GetAllHoaDon")]
-        public IActionResult GetAllHoaDon() {
-            return Ok(iHoaDonService.GetAllHoaDon());
+        public IActionResult GetAllHoaDon(string? keyWord = "",
+            int? year = null,
+            int? month = null,
+            DateTime? dateFrom = null,
+            DateTime? dateTo = null,
+            int? priceFrom = null,
+            int? priceTo = null) {
+            return Ok(iHoaDonService.GetAllHoaDon(keyWord, year, month, dateFrom, dateTo, priceFrom, priceTo));
         }
 
         [HttpGet("GetHoaDonByID")]

@@ -9,6 +9,7 @@ using DonDatHang_API.Handle.Response;
 using DonDatHang_API.Service.Interface;
 using System.Diagnostics;
 using DonDatHang_API.Handle.Request.ChiTietHoaDonRequest;
+using Microsoft.EntityFrameworkCore;
 
 namespace DonDatHang_API.Service.Implement
 {
@@ -96,20 +97,63 @@ namespace DonDatHang_API.Service.Implement
         }
 
 
-        public ResponseData<HoaDonDTO> GetAllHoaDon()
+        public ResponseData<HoaDonDTO> GetAllHoaDon(string? keyWord = "",
+            int? year = null,
+            int? month = null,
+            DateTime? dateFrom = null,
+            DateTime? dateTo = null,
+            int? priceFrom = null,
+            int? priceTo = null)
         {
             var response = new ResponseData<HoaDonDTO>();
-            var listHoaDon = dbContext.HoaDon.ToList();
+            var query = dbContext.HoaDon.Include(x => x.ListChiTietHoaDon).OrderByDescending(x => x.ThoiGianTao).AsQueryable();
 
-            if (listHoaDon.Count() == 0)
+            if (!string.IsNullOrEmpty(keyWord))
+            {
+                query = query.Where(x => x.TenHoaDon.ToLower().Contains(keyWord.ToLower()) || x.MaGiaoDich.ToLower().Contains(keyWord.ToLower()));
+            }
+
+            if (year.HasValue)
+            {
+                query = query.Where(x => x.ThoiGianTao.Year == year);
+            }
+
+            if (month.HasValue)
+            {
+                query = query.Where(x => x.ThoiGianTao.Month == month);
+            }
+
+            if (dateFrom.HasValue)
+            {
+                query = query.Where(x => x.ThoiGianTao.Date >= dateFrom.Value.Date);
+            }
+
+            if (dateTo.HasValue)
+            {
+                query = query.Where(x => x.ThoiGianTao.Date <= dateTo.Value.Date);
+            }
+
+            if (priceFrom.HasValue)
+            {
+                query = query.Where(x => x.TongTien >= priceFrom);
+            }
+
+            if (priceTo.HasValue)
+            {
+                query = query.Where(x => x.TongTien <= priceTo);
+            }
+
+
+            if (query.ToList().Count() == 0)
             {
                 response.Status = ActionStatus.Success;
                 response.Message = "Danh sách trống !";
                 return response;
             }
+
             response.Status = ActionStatus.Success;
             response.Message = "Thành công !";
-            response.DataList = hoaDonConverter.ListEntityHoaDonToDTO(listHoaDon);
+            response.DataList = hoaDonConverter.ListEntityHoaDonToDTO(query.ToList());
             return response;
         }
 

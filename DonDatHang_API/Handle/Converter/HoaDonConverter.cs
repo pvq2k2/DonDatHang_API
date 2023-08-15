@@ -4,8 +4,16 @@ using DonDatHang_API.Handle.Request.HoaDonRequest;
 
 namespace DonDatHang_API.Handle.Converter
 {
+    
     public class HoaDonConverter
     {
+        ChiTietHoaDonConverter chiTietHoaDonConverter;
+
+        public HoaDonConverter()
+        {
+            chiTietHoaDonConverter = new ChiTietHoaDonConverter();
+        }
+
         public HoaDonDTO EntityHoaDonToDTO(HoaDon hoaDon)
         {
             return new HoaDonDTO
@@ -16,8 +24,10 @@ namespace DonDatHang_API.Handle.Converter
                 ThoiGianCapNhat = hoaDon.ThoiGianCapNhat,
                 GhiChu = hoaDon.GhiChu,
                 TongTien = hoaDon.TongTien,
+                ListChiTietHoaDon = chiTietHoaDonConverter.ListEntityChiTietHoaDonToDTO(hoaDon.ListChiTietHoaDon)
             };
         }
+        
 
         public List<HoaDonDTO> ListEntityHoaDonToDTO(List<HoaDon> listHoaDon)
         {
