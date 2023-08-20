@@ -10,6 +10,9 @@ using DonDatHang_API.Service.Interface;
 using System.Diagnostics;
 using DonDatHang_API.Handle.Request.ChiTietHoaDonRequest;
 using Microsoft.EntityFrameworkCore;
+using DonDatHang_API.Helper;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DonDatHang_API.Service.Implement
 {
@@ -97,15 +100,18 @@ namespace DonDatHang_API.Service.Implement
         }
 
 
-        public ResponseData<HoaDonDTO> GetAllHoaDon(string? keyWord = "",
-            int? year = null,
-            int? month = null,
-            DateTime? dateFrom = null,
-            DateTime? dateTo = null,
-            int? priceFrom = null,
-            int? priceTo = null)
+        public PageResult<HoaDonDTO> GetAllHoaDon(Pagination pagination)
         {
-            var response = new ResponseData<HoaDonDTO>();
+            var query = dbContext.HoaDon.Include(x => x.ListChiTietHoaDon).OrderByDescending(x => x.ThoiGianTao).AsQueryable();
+
+            var result = PageResult<HoaDon>.ToPageResult(pagination, query);
+            pagination.totalCount = query.Count();
+
+            return new PageResult<HoaDonDTO>(pagination, hoaDonConverter.ListEntityHoaDonToDTO(result.ToList()));
+        }
+
+        public PageResult<HoaDonDTO> GetHoaDonByKeyword(string keyWord, Pagination pagination)
+        {
             var query = dbContext.HoaDon.Include(x => x.ListChiTietHoaDon).OrderByDescending(x => x.ThoiGianTao).AsQueryable();
 
             if (!string.IsNullOrEmpty(keyWord))
@@ -113,48 +119,49 @@ namespace DonDatHang_API.Service.Implement
                 query = query.Where(x => x.TenHoaDon.ToLower().Contains(keyWord.ToLower()) || x.MaGiaoDich.ToLower().Contains(keyWord.ToLower()));
             }
 
-            if (year.HasValue)
-            {
-                query = query.Where(x => x.ThoiGianTao.Year == year);
-            }
+            var result = PageResult<HoaDon>.ToPageResult(pagination, query);
+            pagination.totalCount = query.Count();
 
-            if (month.HasValue)
-            {
-                query = query.Where(x => x.ThoiGianTao.Month == month);
-            }
+            return new PageResult<HoaDonDTO>(pagination, hoaDonConverter.ListEntityHoaDonToDTO(result.ToList()));
+        }
 
-            if (dateFrom.HasValue)
-            {
-                query = query.Where(x => x.ThoiGianTao.Date >= dateFrom.Value.Date);
-            }
+        public PageResult<HoaDonDTO> GetHoaDonByYearAndMonth(int year, int month, Pagination pagination)
+        {
+            var query = dbContext.HoaDon.Include(x => x.ListChiTietHoaDon)
+                .OrderByDescending(x => x.ThoiGianTao)
+                .Where(x => x.ThoiGianTao.Year == year && x.ThoiGianTao.Month == month)
+                .AsQueryable();
 
-            if (dateTo.HasValue)
-            {
-                query = query.Where(x => x.ThoiGianTao.Date <= dateTo.Value.Date);
-            }
+            var result = PageResult<HoaDon>.ToPageResult(pagination, query);
+            pagination.totalCount = query.Count();
 
-            if (priceFrom.HasValue)
-            {
-                query = query.Where(x => x.TongTien >= priceFrom);
-            }
+            return new PageResult<HoaDonDTO>(pagination, hoaDonConverter.ListEntityHoaDonToDTO(result.ToList()));
+        }
 
-            if (priceTo.HasValue)
-            {
-                query = query.Where(x => x.TongTien <= priceTo);
-            }
+        public PageResult<HoaDonDTO> GetHoaDonByTimePeriod(DateTime dateFrom, DateTime dateTo, Pagination pagination)
+        {
+            var query = dbContext.HoaDon.Include(x => x.ListChiTietHoaDon)
+                .OrderByDescending(x => x.ThoiGianTao)
+                .Where(x => x.ThoiGianTao.Date >= dateFrom.Date && x.ThoiGianTao.Date <= dateTo.Date)
+                .AsQueryable();
 
+            var result = PageResult<HoaDon>.ToPageResult(pagination, query);
+            pagination.totalCount = query.Count();
 
-            if (query.ToList().Count() == 0)
-            {
-                response.Status = ActionStatus.Success;
-                response.Message = "Danh sách trống !";
-                return response;
-            }
+            return new PageResult<HoaDonDTO>(pagination, hoaDonConverter.ListEntityHoaDonToDTO(result.ToList()));
+        }
 
-            response.Status = ActionStatus.Success;
-            response.Message = "Thành công !";
-            response.DataList = hoaDonConverter.ListEntityHoaDonToDTO(query.ToList());
-            return response;
+        public PageResult<HoaDonDTO> GetHoaDonByPriceRange(int priceFrom, int priceTo, Pagination pagination)
+        {
+            var query = dbContext.HoaDon.Include(x => x.ListChiTietHoaDon)
+                .OrderByDescending(x => x.ThoiGianTao)
+                .Where(x => x.TongTien >= priceFrom && x.TongTien <= priceTo)
+                .AsQueryable();
+
+            var result = PageResult<HoaDon>.ToPageResult(pagination, query);
+            pagination.totalCount = query.Count();
+
+            return new PageResult<HoaDonDTO>(pagination, hoaDonConverter.ListEntityHoaDonToDTO(result.ToList()));
         }
 
         public ResponseData<HoaDonDTO> GetHoaDonByID(int hoaDonID)

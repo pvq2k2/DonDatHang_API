@@ -1,4 +1,5 @@
 ﻿using DonDatHang_API.Handle.Request.HoaDonRequest;
+using DonDatHang_API.Helper;
 using DonDatHang_API.Service.Implement;
 using DonDatHang_API.Service.Interface;
 using Microsoft.AspNetCore.Http;
@@ -18,14 +19,32 @@ namespace DonDatHang_API.Controllers
         }
 
         [HttpGet("GetAllHoaDon")]
-        public IActionResult GetAllHoaDon(string? keyWord = "",
-            int? year = null,
-            int? month = null,
-            DateTime? dateFrom = null,
-            DateTime? dateTo = null,
-            int? priceFrom = null,
-            int? priceTo = null) {
-            return Ok(iHoaDonService.GetAllHoaDon(keyWord, year, month, dateFrom, dateTo, priceFrom, priceTo));
+        public IActionResult GetAllHoaDon([FromQuery] Pagination pagination) {
+            return Ok(iHoaDonService.GetAllHoaDon(pagination));
+        }
+
+        [HttpGet("GetHoaDonByKeyword")]
+        public IActionResult GetHoaDonByKeyword([FromQuery] string keyWord, [FromQuery] Pagination pagination)
+        {
+            return Ok(iHoaDonService.GetHoaDonByKeyword(keyWord, pagination));
+        }
+
+        [HttpGet("GetHoaDonByYearAndMonth")]
+        public IActionResult GetHoaDonByYearAndMonth([FromQuery] int year, [FromQuery] int month, [FromQuery] Pagination pagination)
+        {
+            return Ok(iHoaDonService.GetHoaDonByYearAndMonth(year, month, pagination));
+        }
+
+        [HttpGet("GetHoaDonByTimePeriod")]
+        public IActionResult GetHoaDonByTimePeriod([FromQuery] DateTime dateFrom, [FromQuery] DateTime dateTo, [FromQuery] Pagination pagination)
+        {
+            return Ok(iHoaDonService.GetHoaDonByTimePeriod(dateFrom, dateTo, pagination));
+        }
+
+        [HttpGet("GetHoaDonByPriceRange")]
+        public IActionResult GetHoaDonByPriceRange([FromQuery] int priceFrom, [FromQuery] int priceTo, [FromQuery] Pagination pagination)
+        {
+            return Ok(iHoaDonService.GetHoaDonByPriceRange(priceFrom, priceTo, pagination));
         }
 
         [HttpGet("GetHoaDonByID")]
